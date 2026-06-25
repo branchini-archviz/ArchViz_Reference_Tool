@@ -2,4 +2,4 @@ streamlit
 ddgs
 requests
 pillow
-
+beautifulsoup4
