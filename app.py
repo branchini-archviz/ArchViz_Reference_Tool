@@ -228,6 +228,13 @@ if st.button(
 
         query += " " + extra_info
 
+    else:
+
+        query += (
+            ", architecture project, "
+            "architectural photography"
+        )
+
 
 
     if query:
