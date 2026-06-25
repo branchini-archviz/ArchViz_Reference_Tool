@@ -1,5 +1,5 @@
 streamlit
-duckduckgo_search
+ddgs
 requests
 beautifulsoup4
 pillow
