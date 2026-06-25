@@ -51,42 +51,48 @@ if st.button("Buscar referencias"):
 
         if project.strip():
 
-            st.divider()
-
-            st.subheader(project)
-
             images = search_images(project)
 
             st.session_state.results[project] = images
 
-            cols = st.columns(5)
 
-            for i, result in enumerate(images):
 
-                col = cols[i % 5]
+# Mostrar resultados guardados
 
-                try:
-                    
-                    url = result["image"]
+for project, images in st.session_state.results.items():
 
-                    response = requests.get(
-                        url,
-                        timeout=5
-                    )
+    st.divider()
 
-                    img = Image.open(
-                        BytesIO(response.content)
-                    )
+    st.subheader(project)
 
-                    col.image(
-                        img,
-                        use_container_width=True
-                    )
+    cols = st.columns(5)
 
-                    col.checkbox(
-                        "Guardar",
-                        key=f"{project}_{i}"
-                    )
+    for i, result in enumerate(images):
 
-                except Exception as e:
-                    st.write(e)
+        col = cols[i % 5]
+
+        try:
+
+            url = result["image"]
+
+            response = requests.get(
+                url,
+                timeout=5
+            )
+
+            img = Image.open(
+                BytesIO(response.content)
+            )
+
+            col.image(
+                img,
+                use_container_width=True
+            )
+
+            col.checkbox(
+                "Guardar",
+                key=f"{project}_{i}"
+            )
+
+        except Exception as e:
+            pass
