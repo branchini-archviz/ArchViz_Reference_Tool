@@ -4,9 +4,6 @@ import requests
 
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
-import json
 
 
 st.set_page_config(
@@ -44,196 +41,27 @@ def search_images(query):
 
         with DDGS() as ddgs:
 
-            search_results = ddgs.text(
-                query + " site:archdaily.com OR site:dezeen.com OR site:divisare.com",
-                max_results=5
+
+            images = ddgs.images(
+                query,
+                max_results=30
             )
 
 
-        urls = []
-
-
-        for item in search_results:
-
-            url = item.get("href")
-
-            if url:
-                urls.append(url)
-
-
-
-        for page_url in urls:
-
-
-            try:
-
-
-                response = requests.get(
-                    page_url,
-                    timeout=10,
-                    headers={
-                        "User-Agent":
-                        "Mozilla/5.0"
-                    }
-                )
-
-
-                soup = BeautifulSoup(
-                    response.text,
-                    "html.parser"
-                )
-
-
-
-                image_urls = []
-
-
-
-                # 1 - OpenGraph
-
-                og_images = soup.find_all(
-                    "meta",
-                    property="og:image"
-                )
-
-
-                for img in og_images:
-
-                    content = img.get(
-                        "content"
-                    )
-
-                    if content:
-
-                        image_urls.append(
-                            content
-                        )
-
-
-
-                # 2 - JSON-LD
-
-                scripts = soup.find_all(
-                    "script",
-                    type="application/ld+json"
-                )
-
-
-                for script in scripts:
-
-                    try:
-
-                        data = json.loads(
-                            script.string
-                        )
-
-
-                        if isinstance(
-                            data,
-                            dict
-                        ):
-
-
-                            img = data.get(
-                                "image"
-                            )
-
-
-                            if isinstance(
-                                img,
-                                list
-                            ):
-
-                                image_urls.extend(
-                                    img
-                                )
-
-
-                            elif img:
-
-                                image_urls.append(
-                                    img
-                                )
-
-
-                    except:
-
-                        pass
-
-
-
-                # 3 - srcset
-
-                imgs = soup.find_all(
-                    "img"
-                )
-
-
-                for img in imgs:
-
-
-                    srcset = img.get(
-                        "srcset"
-                    )
-
-
-                    if srcset:
-
-
-                        first = srcset.split(",")[0]
-
-                        image_urls.append(
-                            first.split()[0]
-                        )
-
-
-
-                # Guardar resultados
-
-                for img_url in image_urls:
-
-
-                    img_url = urljoin(
-                        page_url,
-                        img_url
-                    )
-
-
-                    if img_url not in [
-                        x["image"]
-                        for x in results
-                    ]:
-
-
-                        results.append(
-                            {
-                                "image": img_url,
-                                "title": query,
-                                "url": page_url
-                            }
-                        )
-
-
-
-                    if len(results) >= 30:
-
-                        return results[:30]
-
-
-
-            except Exception:
-
-                pass
-
+            results.extend(
+                images
+            )
 
 
         return results[:30]
 
 
-
     except Exception:
 
+
         return []
+
+
 
 # =========================
 # INTERFAZ
@@ -245,16 +73,15 @@ st.title(
 )
 
 
+
 projects_input = st.text_area(
     "Obras de arquitectura (una por línea)",
     height=160,
     placeholder="""
-Ej:
-
 Casa Poli - Pezo von Ellrichshausen
-Casa Gilardi - Luis Barragán
 Therme Vals - Peter Zumthor
-Casa Corten - Estudio PKa
+Casa Gilardi - Luis Barragán
+Casa Farnsworth - Mies van der Rohe
 """
 )
 
@@ -287,12 +114,10 @@ if st.button(
                 query = (
                     project
                     +
-                    ", architectural photography, "
-                    "real built project, "
-                    "professional architecture photographer, "
-                    "high quality architecture image"
+                    " architecture photography "
+                    "built project "
+                    "professional architectural photo"
                 )
-
 
 
                 images = search_images(
@@ -303,6 +128,8 @@ if st.button(
                 st.session_state.results[
                     project
                 ] = images
+
+
 
 
 
@@ -321,7 +148,7 @@ tab_refs, tab_moodboard = st.tabs(
 
 
 # =========================
-# GALERÍA
+# REFERENCIAS
 # =========================
 
 
@@ -404,6 +231,7 @@ with tab_refs:
                 )
 
 
+
                 if link:
 
                     col.write(
@@ -437,6 +265,7 @@ with tab_refs:
             except Exception:
 
                 pass
+
 
 
 
@@ -479,16 +308,22 @@ with tab_moodboard:
     ):
 
 
-        img = st.session_state.image_cache[url]
+        try:
 
 
-        col = cols[idx % 4]
+            img = st.session_state.image_cache[url]
 
 
-        col.image(
-            img,
-            use_container_width=True
-        )
+            cols[idx % 4].image(
+                img,
+                use_container_width=True
+            )
+
+
+        except Exception:
+
+            pass
+
 
 
 
@@ -506,17 +341,17 @@ if st.button(
 ):
 
 
-    if st.session_state.selected_images:
+    if len(st.session_state.selected_images) > 0:
 
 
         thumb_width = 350
 
         gap = 10
 
-        cols = 4
+        columns = 4
 
 
-        images = []
+        processed = []
 
 
         for url, project in st.session_state.selected_images.items():
@@ -569,7 +404,7 @@ if st.button(
             )
 
 
-            images.append(
+            processed.append(
                 img
             )
 
@@ -577,26 +412,28 @@ if st.button(
 
         heights = [
             0
-        ] * cols
+        ] * columns
+
 
 
         positions = []
 
 
-        for img in images:
+
+        for img in processed:
 
 
-            col = heights.index(
+            column = heights.index(
                 min(heights)
             )
 
 
-            x = col * (
+            x = column * (
                 thumb_width + gap
             )
 
 
-            y = heights[col]
+            y = heights[column]
 
 
             positions.append(
@@ -608,7 +445,7 @@ if st.button(
             )
 
 
-            heights[col] += (
+            heights[column] += (
                 img.height + gap
             )
 
@@ -617,8 +454,8 @@ if st.button(
         board = Image.new(
             "RGB",
             (
-                cols * thumb_width +
-                (cols - 1) * gap,
+                columns * thumb_width +
+                (columns - 1) * gap,
                 max(heights)
             ),
             "white"
@@ -649,9 +486,11 @@ if st.button(
         )
 
 
+
         st.download_button(
             "⬇️ Descargar JPG",
             data=output.getvalue(),
-            file_name="archviz_moodboard.jpg",
-            mime="image/jpeg"
+            file_name="moodboard.jpg",
+            mime="image/jpeg",
+            use_container_width=True
         )
