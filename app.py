@@ -260,18 +260,6 @@ Casa Corten - Estudio PKa
 
 
 
-extra_info = st.text_area(
-    "Información adicional de búsqueda (opcional)",
-    height=100,
-    placeholder="""
-Ej:
-Busco fotografía exterior.
-Atmósfera minimalista, luz cálida, editorial.
-"""
-)
-
-
-
 if st.button(
     "🔍 Buscar referencias",
     use_container_width=True
