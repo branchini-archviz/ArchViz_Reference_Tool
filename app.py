@@ -38,6 +38,8 @@ def search_images(query):
 
     results = []
 
+    MAX_IMAGES_PER_PROJECT = 5
+
     try:
 
         with DDGS() as ddgs:
@@ -146,12 +148,12 @@ def search_images(query):
                     )
 
 
-                if len(results) >= 20:
+                if len(results) >= MAX_IMAGES_PER_PROJECT:
                     break
 
 
 
-            if len(results) >= 20:
+            if len(results) >= MAX_IMAGES_PER_PROJECT:
                 break
 
 
