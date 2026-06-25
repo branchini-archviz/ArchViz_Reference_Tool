@@ -221,78 +221,81 @@ for url, project_name in st.session_state.selected_images.items():
             img_copy.height - 55
         )
 
-                draw.text(
-                    text_position,
-                    text,
-                    fill="white",
-                    font=font
-                )
-
-                ratio = img_copy.height / img_copy.width
-
-                new_height = int(
-                    thumb_width * ratio
-                )
-
-                img_copy = img_copy.resize(
-                    (thumb_width, new_height)
-                )
-
-                processed_images.append(img_copy)
-
-            except Exception:
-                pass
-
-        board_width = cols * thumb_width + (cols - 1) * gap
-
-        placements = []
-
-        for img in processed_images:
-
-            column = column_heights.index(
-                min(column_heights)
-            )
-
-            x = column * (thumb_width + gap)
-
-            y = column_heights[column]
-
-            placements.append(
-                (img, x, y)
-            )
-
-            column_heights[column] += img.height + gap
-
-        board_height = max(column_heights) - gap
-
-        moodboard = Image.new(
-            "RGB",
-            (board_width, board_height),
-            "white"
+        draw.text(
+            text_position,
+            text,
+            fill="white",
+            font=font
         )
 
-        for img, x, y in placements:
+        ratio = img_copy.height / img_copy.width
 
-            moodboard.paste(
-                img,
-                (x, y)
-            )
-
-        output = BytesIO()
-
-        moodboard.save(
-            output,
-            format="JPEG",
-            quality=95
+        new_height = int(
+            thumb_width * ratio
         )
 
-        st.download_button(
-            "⬇️ Descargar Moodboard JPG",
-            data=output.getvalue(),
-            file_name="moodboard.jpg",
-            mime="image/jpeg",
-            use_container_width=True
+        img_copy = img_copy.resize(
+            (thumb_width, new_height)
         )
+
+        processed_images.append(img_copy)
+
+    except Exception:
+        pass
+
+
+board_width = cols * thumb_width + (cols - 1) * gap
+
+placements = []
+
+for img in processed_images:
+
+    column = column_heights.index(
+        min(column_heights)
+    )
+
+    x = column * (thumb_width + gap)
+
+    y = column_heights[column]
+
+    placements.append(
+        (img, x, y)
+    )
+
+    column_heights[column] += img.height + gap
+
+
+board_height = max(column_heights) - gap
+
+moodboard = Image.new(
+    "RGB",
+    (board_width, board_height),
+    "white"
+)
+
+for img, x, y in placements:
+
+    moodboard.paste(
+        img,
+        (x, y)
+    )
+
+
+output = BytesIO()
+
+moodboard.save(
+    output,
+    format="JPEG",
+    quality=95
+)
+
+st.download_button(
+    "⬇️ Descargar Moodboard JPG",
+    data=output.getvalue(),
+    file_name="moodboard.jpg",
+    mime="image/jpeg",
+    use_container_width=True
+)
 st.write(
     f"Imágenes seleccionadas: {len(st.session_state.selected_images)}"
 )
