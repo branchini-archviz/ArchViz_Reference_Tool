@@ -60,9 +60,11 @@ if st.button("Buscar referencias"):
 
             cols = st.columns(5)
 
-            for i, url in enumerate(images):
+            for i, result in enumerate(images):
 
                 try:
+                    
+                    url = result["image"]
 
                     response = requests.get(
                         url,
@@ -83,5 +85,5 @@ if st.button("Buscar referencias"):
                         key=f"{project}_{i}"
                     )
 
-                except:
+                except Exception as e:
                     pass
