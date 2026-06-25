@@ -194,7 +194,7 @@ if st.button(
 
         font_size = 32
         
-        for url, project_name in st.session_state.selected_images.items():
+for url, project_name in st.session_state.selected_images.items():
 
     try:
 
