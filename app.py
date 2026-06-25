@@ -139,7 +139,7 @@ with tab_moodboard:
 
     st.subheader("Moodboard")
 
-     if st.button(
+    if st.button(
         "🗑️ Limpiar Moodboard",
         use_container_width=True
     ):
