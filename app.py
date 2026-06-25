@@ -31,14 +31,13 @@ Casa Levels - Luciano Kruk
 
 def search_images(query):
 
-    results=[]
-try:
-    with DDGS() as ddgs:
-        images = ddgs.images(
-            query,
-            max_results=5
-        )
-        return images
+    try:
+        with DDGS() as ddgs:
+            images = ddgs.images(
+                query,
+                max_results=5
+            )
+            return images
 
     except Exception as e:
         return []
