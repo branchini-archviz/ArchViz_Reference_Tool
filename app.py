@@ -74,6 +74,14 @@ def analyze_image(image):
         skip_special_tokens=True
     )
 
+    
+    description += (
+        " architecture photography "
+        "built project "
+        "real architectural photo "
+        "professional photographer "
+    )
+
     return description
 
 
@@ -84,16 +92,56 @@ def analyze_image(image):
 
 def search_images(query):
 
+    results = []
+
+    sites = [
+        "archdaily.com",
+        "dezeen.com",
+        "divisare.com",
+        "designboom.com",
+        "world-architects.com"
+    ]
+
+
     try:
 
         with DDGS() as ddgs:
 
-            images = ddgs.images(
-                query,
-                max_results=10
-            )
 
-            return images
+            for site in sites:
+
+
+                search_query = (
+                    query
+                    +
+                    " architecture photography built project real photo site:"
+                    +
+                    site
+                )
+
+
+                images = ddgs.images(
+                    search_query,
+                    max_results=6
+                )
+
+
+                results.extend(
+                    images
+                )
+
+
+                if len(results) >= 30:
+                    break
+
+
+
+        return results[:30]
+
+
+    except Exception:
+
+        return []
 
 
     except Exception:
@@ -241,6 +289,16 @@ with tab_refs:
 
                 url = result["image"]
 
+                title = result.get(
+                    "title",
+                    project
+                )
+
+                link = result.get(
+                    "url",
+                    ""
+                )
+
 
                 if url not in st.session_state.image_cache:
 
@@ -263,6 +321,16 @@ with tab_refs:
                     img,
                     use_container_width=True
                 )
+
+                col.caption(
+                    title
+                )
+
+                if link:
+
+                    col.write(
+                        link
+                    )
 
 
                 selected = col.checkbox(
