@@ -22,88 +22,20 @@ if "results" not in st.session_state:
 if "selected_images" not in st.session_state:
     st.session_state.selected_images = {}
 
-elif isinstance(st.session_state.selected_images, list):
-    st.session_state.selected_images = {}
-
-
 if "image_cache" not in st.session_state:
     st.session_state.image_cache = {}
 
 
 
 # =========================
-# MODELO IA
-# =========================
-
-@st.cache_resource
-def load_ai_model():
-
-    from transformers import (
-        BlipProcessor,
-        BlipForConditionalGeneration
-    )
-
-    processor = BlipProcessor.from_pretrained(
-        "Salesforce/blip-image-captioning-base"
-    )
-
-    model = BlipForConditionalGeneration.from_pretrained(
-        "Salesforce/blip-image-captioning-base"
-    )
-
-    return processor, model
-
-
-
-def analyze_image(image):
-
-    processor, model = load_ai_model()
-
-    inputs = processor(
-        image,
-        return_tensors="pt"
-    )
-
-    output = model.generate(
-        **inputs,
-        max_new_tokens=50
-    )
-
-    description = processor.decode(
-        output[0],
-        skip_special_tokens=True
-    )
-
-
-    architecture_prompt = (
-        "architectural photography, "
-        "real built architecture project, "
-        "contemporary architecture, "
-        "professional architectural photographer, "
-        "ArchDaily style reference, "
-        "high quality architecture image"
-    )
-
-
-    final_query = (
-        description
-        +
-        ", "
-        +
-        architecture_prompt
-    )
-
-
-    return final_query
-
-
-# =========================
 # BUSCADOR
 # =========================
+
 
 def search_images(query):
 
     results = []
+
 
     sites = [
         "archdaily.com",
@@ -125,7 +57,7 @@ def search_images(query):
                 search_query = (
                     query
                     +
-                    " architecture photography built project real photo site:"
+                    " site:"
                     +
                     site
                 )
@@ -133,7 +65,7 @@ def search_images(query):
 
                 images = ddgs.images(
                     search_query,
-                    max_results=10
+                    max_results=8
                 )
 
 
@@ -142,12 +74,11 @@ def search_images(query):
                 )
 
 
-                if len(results) >= 30:
+                if len(results) >= 40:
                     break
 
 
-
-        return results[:30]
+        return results[:40]
 
 
     except Exception:
@@ -156,35 +87,38 @@ def search_images(query):
 
 
 
-
 # =========================
-# INTERFAZ BUSQUEDA
+# INTERFAZ
 # =========================
 
 
 st.title(
-    "ArchViz Reference Finder"
+    "🏛️ ArchViz Reference Finder"
 )
 
 
-uploaded_image = st.file_uploader(
-    "📤 Subir imagen de referencia (opcional)",
-    type=[
-        "jpg",
-        "jpeg",
-        "png"
-    ]
+projects_input = st.text_area(
+    "Obras de arquitectura (una por línea)",
+    height=160,
+    placeholder="""
+Ej:
+
+Casa Poli - Pezo von Ellrichshausen
+Casa Gilardi - Luis Barragán
+Therme Vals - Peter Zumthor
+Casa Corten - Estudio PKa
+"""
 )
+
 
 
 extra_info = st.text_area(
-    "📝 Información adicional (opcional)",
-    height=120,
+    "Información adicional de búsqueda (opcional)",
+    height=100,
     placeholder="""
 Ej:
-Casa minimalista costera.
-Busco atmósfera editorial, cálida y materiales naturales.
-Hormigón visto, vidrio y vegetación.
+Busco fotografía exterior.
+Atmósfera minimalista, luz cálida, editorial.
 """
 )
 
@@ -195,77 +129,59 @@ if st.button(
     use_container_width=True
 ):
 
-    query = ""
+
+    if projects_input:
 
 
-    if uploaded_image:
-
-        image = Image.open(
-            uploaded_image
-        )
-
-
-        st.image(
-            image,
-            width=350
-        )
-
-
-        with st.spinner(
-            "Analizando imagen..."
-        ):
-
-            query = (
-                analyze_image(image)
-                +
-                ", architecture project, "
-                "building exterior, "
-                "real construction photography, "
-                "architectural reference"
-            )
-
-
-    if extra_info:
-
-        query += " " + extra_info
-
-    else:
-
-        query += (
-            ", architecture project, "
-            "architectural photography"
-        )
-
-
-
-    if query:
+        projects = projects_input.split("\n")
 
 
         st.session_state.results = {}
 
 
-        st.write(
-            "Búsqueda generada:"
-        )
+        for project in projects:
 
 
-        st.info(
-            query
-        )
+            project = project.strip()
 
 
-        images = search_images(
-            "architecture building project photography " + query
-        )
+            if project:
 
 
-        st.session_state.results[
-            query
-        ] = images
+                query = (
+                    project
+                    +
+                    ", architectural photography, "
+                    "real built project, "
+                    "professional architecture photographer, "
+                    "high quality architecture image"
+                )
+
+
+                if extra_info:
+
+                    query += (
+                        ", "
+                        +
+                        extra_info
+                    )
+
+
+                images = search_images(
+                    query
+                )
+
+
+                st.session_state.results[
+                    project
+                ] = images
+
+
 
 # =========================
-# TABS PRINCIPALES
+# TABS
 # =========================
+
 
 tab_refs, tab_moodboard = st.tabs(
     [
@@ -279,6 +195,7 @@ tab_refs, tab_moodboard = st.tabs(
 # =========================
 # GALERÍA
 # =========================
+
 
 with tab_refs:
 
@@ -297,6 +214,7 @@ with tab_refs:
         cols = st.columns(3)
 
 
+
         for i, result in enumerate(images):
 
 
@@ -306,17 +224,23 @@ with tab_refs:
             try:
 
 
-                url = result["image"]
+                url = result.get(
+                    "image",
+                    ""
+                )
+
 
                 title = result.get(
                     "title",
                     project
                 )
 
+
                 link = result.get(
                     "url",
                     ""
                 )
+
 
 
                 if url not in st.session_state.image_cache:
@@ -328,12 +252,17 @@ with tab_refs:
                     )
 
 
-                    st.session_state.image_cache[url] = Image.open(
+                    img = Image.open(
                         BytesIO(response.content)
                     )
 
 
+                    st.session_state.image_cache[url] = img
+
+
+
                 img = st.session_state.image_cache[url]
+
 
 
                 col.image(
@@ -341,9 +270,11 @@ with tab_refs:
                     use_container_width=True
                 )
 
+
                 col.caption(
                     title
                 )
+
 
                 if link:
 
@@ -352,19 +283,18 @@ with tab_refs:
                     )
 
 
+
                 selected = col.checkbox(
                     "Seleccionar",
                     key=f"{project}_{i}"
                 )
 
 
+
                 if selected:
 
 
-                    if url not in st.session_state.selected_images:
-
-                        st.session_state.selected_images[url] = project
-
+                    st.session_state.selected_images[url] = project
 
 
                 else:
@@ -378,9 +308,7 @@ with tab_refs:
 
             except Exception:
 
-
                 pass
-
 
 
 
@@ -398,8 +326,7 @@ with tab_moodboard:
 
 
     if st.button(
-        "🗑️ Limpiar Moodboard",
-        use_container_width=True
+        "🗑️ Limpiar Moodboard"
     ):
 
 
@@ -410,12 +337,12 @@ with tab_moodboard:
 
 
     st.write(
-        f"{len(st.session_state.selected_images)} imágenes"
+        f"Imágenes seleccionadas: {len(st.session_state.selected_images)}"
     )
 
 
 
-    mood_cols = st.columns(4)
+    cols = st.columns(4)
 
 
 
@@ -424,218 +351,127 @@ with tab_moodboard:
     ):
 
 
-        try:
+        img = st.session_state.image_cache[url]
 
 
-            img = st.session_state.image_cache[url]
+        col = cols[idx % 4]
 
 
-            cell = mood_cols[idx % 4]
-
-
-
-            remove = cell.button(
-                "✕",
-                key=f"remove_{idx}"
-            )
-
-
-
-            if remove:
-
-
-                del st.session_state.selected_images[url]
-
-                st.rerun()
-
-
-
-            cell.image(
-                img,
-                use_container_width=True
-            )
-
-
-
-        except Exception:
-
-
-            pass
-
-
-
-    st.divider()
-
-
-# =========================
-# EXPORTAR MOODBOARD JPG
-# =========================
-
-
-if st.button(
-    "🖼️ Exportar JPG",
-    use_container_width=True
-):
-
-
-    if len(st.session_state.selected_images) > 0:
-
-
-
-        cols = 4
-
-        gap = 8
-
-        thumb_width = 350
-
-
-        column_heights = [
-            0
-        ] * cols
-
-
-        processed_images = []
-
-
-
-        for url, project_name in st.session_state.selected_images.items():
-
-
-            try:
-
-
-                img = st.session_state.image_cache[url]
-
-
-                img_copy = img.copy().convert(
-                    "RGB"
-                )
-
-
-
-                ratio = (
-                    img_copy.height /
-                    img_copy.width
-                )
-
-
-
-                new_height = int(
-                    thumb_width * ratio
-                )
-
-
-
-                img_copy = img_copy.resize(
-                    (
-                        thumb_width,
-                        new_height
-                    )
-                )
-
-
-
-                draw = ImageDraw.Draw(
-                    img_copy
-                )
-
-
-
-                try:
-
-
-                    font = ImageFont.truetype(
-                        "DejaVuSans.ttf",
-                        18
-                    )
-
-
-                except:
-
-
-                    font = ImageFont.load_default()
-
-
-
-                text_position = (
-                    15,
-                    img_copy.height - 25
-                )
-
-
-
-                # sombra
-
-                draw.text(
-                    (
-                        text_position[0] + 1,
-                        text_position[1] + 1
-                    ),
-                    project_name,
-                    fill="black",
-                    font=font
-                )
-
-
-
-                # texto blanco
-
-                draw.text(
-                    text_position,
-                    project_name,
-                    fill="white",
-                    font=font
-                )
-
-
-
-                processed_images.append(
-                    img_copy
-                )
-
-
-
-            except Exception:
-
-
-                pass
-
-
-
-
-        board_width = (
-            cols * thumb_width
-            +
-            (cols - 1) * gap
+        col.image(
+            img,
+            use_container_width=True
         )
 
 
 
-        placements = []
+# =========================
+# EXPORTAR JPG
+# =========================
+
+
+st.divider()
+
+
+if st.button(
+    "🖼️ Exportar Moodboard JPG",
+    use_container_width=True
+):
+
+
+    if st.session_state.selected_images:
+
+
+        thumb_width = 350
+
+        gap = 10
+
+        cols = 4
+
+
+        images = []
+
+
+        for url, project in st.session_state.selected_images.items():
+
+
+            img = (
+                st.session_state.image_cache[url]
+                .copy()
+                .convert("RGB")
+            )
+
+
+            ratio = img.height / img.width
+
+
+            img = img.resize(
+                (
+                    thumb_width,
+                    int(thumb_width * ratio)
+                )
+            )
+
+
+            draw = ImageDraw.Draw(
+                img
+            )
+
+
+            try:
+
+                font = ImageFont.truetype(
+                    "DejaVuSans.ttf",
+                    18
+                )
+
+            except:
+
+                font = ImageFont.load_default()
 
 
 
-        for img in processed_images:
+            draw.text(
+                (
+                    15,
+                    img.height - 30
+                ),
+                project,
+                fill="white",
+                font=font
+            )
 
 
-
-            column = column_heights.index(
-                min(column_heights)
+            images.append(
+                img
             )
 
 
 
-            x = column * (
+        heights = [
+            0
+        ] * cols
+
+
+        positions = []
+
+
+        for img in images:
+
+
+            col = heights.index(
+                min(heights)
+            )
+
+
+            x = col * (
                 thumb_width + gap
             )
 
 
-
-            y = column_heights[column]
-
+            y = heights[col]
 
 
-            placements.append(
+            positions.append(
                 (
                     img,
                     x,
@@ -644,37 +480,28 @@ if st.button(
             )
 
 
-
-            column_heights[column] += (
+            heights[col] += (
                 img.height + gap
             )
 
 
 
-
-        board_height = (
-            max(column_heights)
-            -
-            gap
-        )
-
-
-
-        moodboard = Image.new(
+        board = Image.new(
             "RGB",
             (
-                board_width,
-                board_height
+                cols * thumb_width +
+                (cols - 1) * gap,
+                max(heights)
             ),
             "white"
         )
 
 
 
-        for img, x, y in placements:
+        for img, x, y in positions:
 
 
-            moodboard.paste(
+            board.paste(
                 img,
                 (
                     x,
@@ -684,29 +511,19 @@ if st.button(
 
 
 
-
         output = BytesIO()
 
 
-
-        moodboard.save(
+        board.save(
             output,
             format="JPEG",
             quality=95
         )
 
 
-
         st.download_button(
-            "⬇️ Descargar Moodboard JPG",
+            "⬇️ Descargar JPG",
             data=output.getvalue(),
-            file_name="moodboard.jpg",
-            mime="image/jpeg",
-            use_container_width=True
+            file_name="archviz_moodboard.jpg",
+            mime="image/jpeg"
         )
-
-
-
-st.write(
-    f"Imágenes seleccionadas: {len(st.session_state.selected_images)}"
-)
