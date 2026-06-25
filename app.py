@@ -71,7 +71,7 @@ left_col, right_col = st.columns([4, 1])
 # GALERÍA DE REFERENCIAS
 # =========================
 
-with tab_refs:
+with left_col:
 
     for project, images in st.session_state.results.items():
 
