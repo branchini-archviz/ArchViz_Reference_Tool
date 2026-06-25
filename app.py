@@ -43,7 +43,7 @@ def search_images(query):
         with DDGS() as ddgs:
 
             pages = ddgs.text(
-                query + " architecture project",
+                '"' + query + '"' + " architecture project",
                 max_results=10
             )
 
