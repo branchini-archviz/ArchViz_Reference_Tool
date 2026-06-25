@@ -5,6 +5,7 @@ from PIL import Image
 from io import BytesIO
 from PIL import Image, ImageOps, ImageDraw
 import math
+from PIL import ImageFont
 
 st.set_page_config(
     page_title="ArchViz Reference Finder",
@@ -191,26 +192,34 @@ if st.button(
 
         processed_images = []
 
-        font_size = 18
+        font_size = 32
         
         for url, project_name in st.session_state.selected_images.items():
 
-            try:
+    try:
 
-                img = st.session_state.image_cache[url]
+        img = st.session_state.image_cache[url]
 
-                img_copy = img.copy().convert("RGB")
+        img_copy = img.copy().convert("RGB")
 
-                draw = ImageDraw.Draw(img_copy)
+        draw = ImageDraw.Draw(img_copy)
 
-                text = project_name
+        text = project_name
 
-                font = None
+        font_size = 32
 
-                text_position = (
-                    15,
-                    img_copy.height - 35
-                )
+        try:
+            font = ImageFont.truetype(
+                "DejaVuSans.ttf",
+                font_size
+            )
+        except:
+            font = ImageFont.load_default()
+
+        text_position = (
+            20,
+            img_copy.height - 55
+        )
 
                 draw.text(
                     text_position,
