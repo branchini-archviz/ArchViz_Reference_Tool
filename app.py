@@ -5,6 +5,7 @@ import json
 from bs4 import BeautifulSoup
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+from ddgs import DDGS
 
 
 st.set_page_config(
@@ -39,108 +40,24 @@ def search_images(query):
 
     try:
 
-        headers = {
-            "User-Agent": "Mozilla/5.0"
-        }
+        with DDGS() as ddgs:
 
-
-        search_url = (
-            "https://www.archdaily.com/search/projects?"
-            "q="
-            +
-            requests.utils.quote(query)
-        )
-
-
-        response = requests.get(
-            search_url,
-            headers=headers,
-            timeout=10
-        )
-
-
-        soup = BeautifulSoup(
-            response.text,
-            "html.parser"
-        )
-
-
-        links = []
-
-
-        for a in soup.find_all("a"):
-
-            href = a.get("href", "")
-
-            if "/project/" in href:
-
-                full_url = (
-                    "https://www.archdaily.com"
-                    +
-                    href
-                )
-
-                if full_url not in links:
-                    links.append(full_url)
-
-
-
-        if not links:
-
-            return []
-
-
-        project_url = links[0]
-
-
-        project_page = requests.get(
-            project_url,
-            headers=headers,
-            timeout=10
-        )
-
-
-        project_soup = BeautifulSoup(
-            project_page.text,
-            "html.parser"
-        )
-
-
-        for img in project_soup.find_all("img"):
-
-
-            src = (
-                img.get("src")
-                or
-                img.get("data-src")
+            pages = ddgs.text(
+                query,
+                max_results=5
             )
 
 
-            if src:
+        st.write("RESULTADOS TEXTO:")
+        st.write(pages)
 
 
-                results.append(
-                    {
-                        "image": src,
-                        "title": query,
-                        "url": project_url
-                    }
-                )
-
-
-            if len(results) >= 20:
-
-                break
-
-
-
-        return results
-
+        return []
 
 
     except Exception as e:
 
-        st.error(str(e))
+        st.error(e)
 
         return []
         
