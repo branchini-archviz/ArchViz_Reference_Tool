@@ -66,7 +66,7 @@ def analyze_image(image):
 
     output = model.generate(
         **inputs,
-        max_new_tokens=60
+        max_new_tokens=80
     )
 
     description = processor.decode(
@@ -74,19 +74,27 @@ def analyze_image(image):
         skip_special_tokens=True
     )
 
-    
-    description = (
-        description
-        +
-        ", contemporary architecture, "
-        "real built house, "
+
+    architecture_prompt = (
         "architectural photography, "
-        "architecture magazine, "
-        "professional architecture photographer"
+        "real built project, "
+        "contemporary architecture, "
+        "ArchDaily, Dezeen, "
+        "professional architecture photographer, "
+        "high quality architecture reference, "
     )
 
-    return description
 
+    final_query = (
+        description
+        +
+        ", "
+        +
+        architecture_prompt
+    )
+
+
+    return final_query
 
 
 # =========================
