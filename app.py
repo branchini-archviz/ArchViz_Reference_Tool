@@ -139,6 +139,15 @@ with tab_moodboard:
 
     st.subheader("Moodboard")
 
+     if st.button(
+        "🗑️ Limpiar Moodboard",
+        use_container_width=True
+    ):
+
+        st.session_state.selected_images = {}
+
+        st.rerun()
+
     st.write(
         f"{len(st.session_state.selected_images)} imágenes"
     )
