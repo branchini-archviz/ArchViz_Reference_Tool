@@ -203,7 +203,6 @@ if st.button(
                     query
                 )
 
-                st.write(images)
 
                 st.session_state.results[
                     project
