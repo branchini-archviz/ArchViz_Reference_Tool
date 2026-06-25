@@ -63,6 +63,8 @@ if st.button("Buscar referencias"):
 
             for i, result in enumerate(images):
 
+                col = cols[i % 5]
+
                 try:
                     
                     url = result["image"]
