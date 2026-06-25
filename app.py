@@ -42,27 +42,35 @@ def search_images(query):
         with DDGS() as ddgs:
 
 
-            images = ddgs.images(
-                '"' + query + '"',
-                max_results=30,
-                type_image="photo"
-            )
-            
-            st.write(query)
-
-            results.extend(
-                images
+            pages = ddgs.text(
+                query + " ArchDaily",
+                max_results=5
             )
 
 
-        return results[:30]
+        for page in pages:
+
+            url = page.get("href", "")
+
+
+            if url:
+
+                results.append(
+                    {
+                        "image": "",
+                        "title": page.get("title", ""),
+                        "url": url
+                    }
+                )
+
+
+        return results
+
 
 
     except Exception:
 
-
         return []
-
 
 
 # =========================
