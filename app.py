@@ -294,14 +294,6 @@ if st.button(
                 )
 
 
-                if extra_info:
-
-                    query += (
-                        ", "
-                        +
-                        extra_info
-                    )
-
 
                 images = search_images(
                     query
