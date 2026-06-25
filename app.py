@@ -47,7 +47,8 @@ def search_images(query):
                 max_results=30,
                 type_image="photo"
             )
-
+            
+            st.write(query)
 
             results.extend(
                 images
