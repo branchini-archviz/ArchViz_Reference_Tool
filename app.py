@@ -75,11 +75,14 @@ def analyze_image(image):
     )
 
     
-    description += (
-        " architecture photography "
-        "built project "
-        "real architectural photo "
-        "professional photographer "
+    description = (
+        description
+        +
+        ", contemporary architecture, "
+        "real built house, "
+        "architectural photography, "
+        "architecture magazine, "
+        "professional architecture photographer"
     )
 
     return description
@@ -122,7 +125,7 @@ def search_images(query):
 
                 images = ddgs.images(
                     search_query,
-                    max_results=6
+                    max_results=30
                 )
 
 
