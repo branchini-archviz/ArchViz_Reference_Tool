@@ -89,4 +89,4 @@ if st.button("Buscar referencias"):
                     )
 
                 except Exception as e:
-                    pass
+                    st.write(e)
