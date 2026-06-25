@@ -160,7 +160,7 @@ with tab_moodboard:
 
             if remove:
 
-                st.session_state.selected_images.remove(url)
+                del st.session_state.selected_images[url]
 
                 st.rerun()
 
@@ -192,71 +192,76 @@ if st.button(
 
         processed_images = []
 
-        for url, project_name in st.session_state.selected_images.items():
+for url, project_name in st.session_state.selected_images.items():
 
-            try:
+    try:
 
-                img = st.session_state.image_cache[url]
+        img = st.session_state.image_cache[url]
 
-                img_copy = img.copy().convert("RGB")
-
-                draw = ImageDraw.Draw(img_copy)
-
-ratio = img_copy.height / img_copy.width
-
-new_height = int(
-    thumb_width * ratio
-)
-
-img_copy = img_copy.resize(
-    (thumb_width, new_height)
-)
+        img_copy = img.copy().convert("RGB")
 
 
-draw = ImageDraw.Draw(img_copy)
+        ratio = img_copy.height / img_copy.width
 
-text = project_name
+        new_height = int(
+            thumb_width * ratio
+        )
 
-font_size = 18
-
-try:
-    font = ImageFont.truetype(
-        "DejaVuSans.ttf",
-        font_size
-    )
-except:
-    font = ImageFont.load_default()
+        img_copy = img_copy.resize(
+            (thumb_width, new_height)
+        )
 
 
-text_position = (
-    15,
-    img_copy.height - 30
-)
+        draw = ImageDraw.Draw(img_copy)
+
+        text = project_name
+
+        font_size = 18
+
+        try:
+            font = ImageFont.truetype(
+                "DejaVuSans.ttf",
+                font_size
+            )
+
+        except:
+
+            font = ImageFont.load_default()
 
 
-# sombra para que se lea sobre cualquier imagen
-draw.text(
-    (
-        text_position[0] + 1,
-        text_position[1] + 1
-    ),
-    text,
-    fill="black",
-    font=font
-)
-
-draw.text(
-    text_position,
-    text,
-    fill="white",
-    font=font
-)
+        text_position = (
+            15,
+            img_copy.height - 30
+        )
 
 
-processed_images.append(img_copy)
+        # sombra negra
+        draw.text(
+            (
+                text_position[0] + 1,
+                text_position[1] + 1
+            ),
+            text,
+            fill="black",
+            font=font
+        )
 
-            except Exception:
-                pass
+
+        # texto blanco
+        draw.text(
+            text_position,
+            text,
+            fill="white",
+            font=font
+        )
+
+
+        processed_images.append(img_copy)
+
+
+    except Exception:
+
+        pass
 
 
         board_width = cols * thumb_width + (cols - 1) * gap
