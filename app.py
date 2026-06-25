@@ -180,33 +180,13 @@ if st.button(
 
         cols = 4
 
-        thumb_size = 400
+        thumb_width = 350
 
-        padding = 20
+        column_heights = [0] * cols
 
-        rows = math.ceil(
-            len(st.session_state.selected_images) / cols
-        )
+        processed_images = []
 
-        board_width = (
-            cols * thumb_size
-            + (cols + 1) * padding
-        )
-
-        board_height = (
-            rows * thumb_size
-            + (rows + 1) * padding
-        )
-
-        moodboard = Image.new(
-            "RGB",
-            (board_width, board_height),
-            "white"
-        )
-
-        for idx, url in enumerate(
-            st.session_state.selected_images
-        ):
+        for url in st.session_state.selected_images:
 
             try:
 
@@ -214,37 +194,55 @@ if st.button(
 
                 img_copy = img.copy()
 
-                img_copy.thumbnail(
-                    (thumb_size, thumb_size)
+                ratio = img_copy.height / img_copy.width
+
+                new_height = int(
+                    thumb_width * ratio
                 )
 
-                x = (
-                    idx % cols
-                ) * (
-                    thumb_size + padding
-                ) + padding
-
-                y = (
-                    idx // cols
-                ) * (
-                    thumb_size + padding
-                ) + padding
-
-                paste_x = x + (
-                    thumb_size - img_copy.width
-                ) // 2
-
-                paste_y = y + (
-                    thumb_size - img_copy.height
-                ) // 2
-
-                moodboard.paste(
-                    img_copy,
-                    (paste_x, paste_y)
+                img_copy = img_copy.resize(
+                    (thumb_width, new_height)
                 )
+
+                processed_images.append(img_copy)
 
             except Exception:
                 pass
+
+        board_width = cols * thumb_width
+
+        placements = []
+
+        for img in processed_images:
+
+            column = column_heights.index(
+                min(column_heights)
+            )
+
+            x = column * thumb_width
+
+            y = column_heights[column]
+
+            placements.append(
+                (img, x, y)
+            )
+
+            column_heights[column] += img.height
+
+        board_height = max(column_heights)
+
+        moodboard = Image.new(
+            "RGB",
+            (board_width, board_height),
+            "white"
+        )
+
+        for img, x, y in placements:
+
+            moodboard.paste(
+                img,
+                (x, y)
+            )
 
         output = BytesIO()
 
