@@ -3,4 +3,4 @@ ddgs
 requests
 beautifulsoup4
 pillow
-repotlab
+reportlab
