@@ -180,6 +180,8 @@ if st.button(
 
         cols = 4
 
+        gap = 8
+
         thumb_width = 350
 
         column_heights = [0] * cols
@@ -209,7 +211,7 @@ if st.button(
             except Exception:
                 pass
 
-        board_width = cols * thumb_width
+        board_width = cols * thumb_width + (cols - 1) * gap
 
         placements = []
 
@@ -219,7 +221,7 @@ if st.button(
                 min(column_heights)
             )
 
-            x = column * thumb_width
+            x = column * (thumb_width + gap)
 
             y = column_heights[column]
 
@@ -227,9 +229,9 @@ if st.button(
                 (img, x, y)
             )
 
-            column_heights[column] += img.height
+            column_heights[column] += img.height + gap
 
-        board_height = max(column_heights)
+        board_height = max(column_heights) - gap
 
         moodboard = Image.new(
             "RGB",
