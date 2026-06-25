@@ -35,13 +35,126 @@ if "image_cache" not in st.session_state:
 
 def search_images(query):
 
-    return [
-        {
-            "image": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c",
-            "title": query,
-            "url": "https://www.archdaily.com"
+    results = []
+
+    try:
+
+        # Buscar la página del proyecto
+        search_url = (
+            "https://www.google.com/search?q="
+            +
+            requests.utils.quote(
+                query + " ArchDaily"
+            )
+        )
+
+
+        headers = {
+            "User-Agent":
+            "Mozilla/5.0"
         }
-    ]
+
+
+        response = requests.get(
+            search_url,
+            headers=headers,
+            timeout=10
+        )
+
+
+        soup = BeautifulSoup(
+            response.text,
+            "html.parser"
+        )
+
+
+        links = []
+
+
+        for a in soup.find_all("a"):
+
+
+            href = a.get("href", "")
+
+
+            if "archdaily.com" in href:
+
+
+                if href.startswith("/url?q="):
+
+                    href = href.split("/url?q=")[1].split("&")[0]
+
+
+                links.append(
+                    href
+                )
+
+
+        if len(links) == 0:
+
+            return []
+
+
+
+        project_url = links[0]
+
+
+
+        # Abrir página del proyecto
+
+        page = requests.get(
+            project_url,
+            headers=headers,
+            timeout=10
+        )
+
+
+        page_soup = BeautifulSoup(
+            page.text,
+            "html.parser"
+        )
+
+
+
+        # Buscar imágenes
+
+        for img in page_soup.find_all("img"):
+
+
+            src = (
+                img.get("src")
+                or
+                img.get("data-src")
+            )
+
+
+            if src and "images" in src:
+
+
+                results.append(
+                    {
+                        "image": src,
+                        "title": query,
+                        "url": project_url
+                    }
+                )
+
+
+            if len(results) >= 20:
+
+                break
+
+
+
+        return results
+
+
+
+    except Exception as e:
+
+        st.error(e)
+
+        return []
         
 # =========================
 # INTERFAZ
