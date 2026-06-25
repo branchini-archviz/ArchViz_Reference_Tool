@@ -91,8 +91,8 @@ for project, images in st.session_state.results.items():
                 use_container_width=True
             )
 
-            col.checkbox(
-                "Seleccionar",
+            selected = col.checkbox(
+                "Guardar",
                 key=f"{project}_{i}"
             )
 
