@@ -41,14 +41,24 @@ elif isinstance(st.session_state.selected_images, list):
 if "image_cache" not in st.session_state:
     st.session_state.image_cache = {}
 
-projects = st.text_area(
-    "Proyectos",
-    height=200,
-    placeholder=
-    """
-Costa Rica 4444 - Adamo Faiden
-Bulnes 2467 - Bares McCormack
-Casa Levels - Luciano Kruk
+uploaded_image = st.file_uploader(
+    "Subir imagen de referencia (opcional)",
+    type=[
+        "jpg",
+        "jpeg",
+        "png"
+    ]
+)
+
+
+extra_info = st.text_area(
+    "Información adicional (opcional)",
+    height=120,
+    placeholder="""
+Ej:
+Casa minimalista costera.
+Busco atmósfera cálida y editorial.
+Hormigón, vidrio y vegetación.
 """
 )
 
@@ -65,6 +75,25 @@ def search_images(query):
 
     except Exception as e:
         return []
+
+def analyze_image(image):
+
+    inputs = processor(
+        image,
+        return_tensors="pt"
+    )
+
+    output = model.generate(
+        **inputs,
+        max_new_tokens=60
+    )
+
+    description = processor.decode(
+        output[0],
+        skip_special_tokens=True
+    )
+
+    return description
 
 
 
