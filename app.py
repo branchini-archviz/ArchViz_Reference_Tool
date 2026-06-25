@@ -39,20 +39,17 @@ def search_images(query):
 
     try:
 
-        # Buscar la página del proyecto
-        search_url = (
-            "https://www.google.com/search?q="
-            +
-            requests.utils.quote(
-                query + " ArchDaily"
-            )
-        )
-
-
         headers = {
-            "User-Agent":
-            "Mozilla/5.0"
+            "User-Agent": "Mozilla/5.0"
         }
+
+
+        search_url = (
+            "https://www.archdaily.com/search/projects?"
+            "q="
+            +
+            requests.utils.quote(query)
+        )
 
 
         response = requests.get(
@@ -73,52 +70,43 @@ def search_images(query):
 
         for a in soup.find_all("a"):
 
-
             href = a.get("href", "")
 
+            if "/project/" in href:
 
-            if "archdaily.com" in href:
-
-
-                if href.startswith("/url?q="):
-
-                    href = href.split("/url?q=")[1].split("&")[0]
-
-
-                links.append(
+                full_url = (
+                    "https://www.archdaily.com"
+                    +
                     href
                 )
 
+                if full_url not in links:
+                    links.append(full_url)
 
-        if len(links) == 0:
+
+
+        if not links:
 
             return []
-
 
 
         project_url = links[0]
 
 
-
-        # Abrir página del proyecto
-
-        page = requests.get(
+        project_page = requests.get(
             project_url,
             headers=headers,
             timeout=10
         )
 
 
-        page_soup = BeautifulSoup(
-            page.text,
+        project_soup = BeautifulSoup(
+            project_page.text,
             "html.parser"
         )
 
 
-
-        # Buscar imágenes
-
-        for img in page_soup.find_all("img"):
+        for img in project_soup.find_all("img"):
 
 
             src = (
@@ -128,7 +116,7 @@ def search_images(query):
             )
 
 
-            if src and "images" in src:
+            if src:
 
 
                 results.append(
@@ -152,7 +140,7 @@ def search_images(query):
 
     except Exception as e:
 
-        st.error(e)
+        st.error(str(e))
 
         return []
         
