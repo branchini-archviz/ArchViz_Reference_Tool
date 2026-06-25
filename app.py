@@ -37,93 +37,32 @@ def search_images(query):
 
     results = []
 
-
     try:
 
-        search_url = (
-            "https://www.bing.com/images/search?q="
+        url = (
+            "https://www.archdaily.com/search/projects?"
+            "q="
             +
             requests.utils.quote(query)
         )
 
 
-        headers = {
-            "User-Agent":
-            "Mozilla/5.0"
-        }
-
-
-        response = requests.get(
-            search_url,
-            headers=headers,
-            timeout=10
+        results.append(
+            {
+                "image": "",
+                "title": "Página búsqueda ArchDaily",
+                "url": url
+            }
         )
-
-
-        soup = BeautifulSoup(
-            response.text,
-            "html.parser"
-        )
-
-
-        images = soup.find_all(
-            "a",
-            class_="iusc"
-        )
-
-
-        for img in images:
-
-
-            data = img.get(
-                "m"
-            )
-
-
-            if data:
-
-
-                import json
-
-
-                info = json.loads(
-                    data
-                )
-
-
-                image_url = info.get(
-                    "murl"
-                )
-
-
-                if image_url:
-
-
-                    results.append(
-                        {
-                            "image": image_url,
-                            "title": query,
-                            "url": info.get("purl","")
-                        }
-                    )
-
-
-            if len(results) >= 30:
-
-                break
-
 
 
         return results
 
 
-
-    except Exception as e:
-
-
-        st.error(e)
+    except Exception:
 
         return []
+        
 # =========================
 # INTERFAZ
 # =========================
