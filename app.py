@@ -174,8 +174,8 @@ with tab_moodboard:
         "📄 Exportar PDF",
         use_container_width=True
     )
-
-    if st.button(
+ 
+if st.button(
     "🖼️ Exportar JPG",
     use_container_width=True
 ):
