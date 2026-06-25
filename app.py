@@ -71,7 +71,7 @@ left_col, right_col = st.columns([4, 1])
 # GALERÍA DE REFERENCIAS
 # =========================
 
-with left_col:
+with tab_refs:
 
     for project, images in st.session_state.results.items():
 
@@ -127,7 +127,7 @@ with left_col:
 # PANEL MOODBOARD
 # =========================
 
-with right_col:
+with tab_moodboard:
 
     st.subheader("Moodboard")
 
@@ -145,87 +145,21 @@ with right_col:
 
             cell = mood_cols[idx % 4]
 
-            cell.image(
-                img,
-                width=100
+            remove = cell.button(
+                "✕",
+                key=f"remove_{idx}"
             )
 
-            r1c1, r1c2 = cell.columns(2)
-
-            with r1c1:
-
-                if st.button(
-                    "⬅️",
-                    key=f"left_{idx}"
-                ):
-
-                    if idx > 0:
-
-                        st.session_state.selected_images[idx], st.session_state.selected_images[idx - 1] = (
-                            st.session_state.selected_images[idx - 1],
-                            st.session_state.selected_images[idx]
-                        )
-
-                        st.rerun()
-
-            with r1c2:
-
-                if st.button(
-                    "➡️",
-                    key=f"right_{idx}"
-                ):
-
-                    if idx < len(st.session_state.selected_images) - 1:
-
-                        st.session_state.selected_images[idx], st.session_state.selected_images[idx + 1] = (
-                            st.session_state.selected_images[idx + 1],
-                            st.session_state.selected_images[idx]
-                        )
-
-                        st.rerun()
-
-            r2c1, r2c2 = cell.columns(2)
-
-            with r2c1:
-
-                if st.button(
-                    "⬆️",
-                    key=f"up_{idx}"
-                ):
-
-                    if idx >= 4:
-
-                        st.session_state.selected_images[idx], st.session_state.selected_images[idx - 4] = (
-                            st.session_state.selected_images[idx - 4],
-                            st.session_state.selected_images[idx]
-                        )
-
-                        st.rerun()
-
-            with r2c2:
-
-                if st.button(
-                    "⬇️",
-                    key=f"down_{idx}"
-                ):
-
-                    if idx + 4 < len(st.session_state.selected_images):
-
-                        st.session_state.selected_images[idx], st.session_state.selected_images[idx + 4] = (
-                            st.session_state.selected_images[idx + 4],
-                            st.session_state.selected_images[idx]
-                        )
-
-                        st.rerun()
-
-            if cell.button(
-                "❌",
-                key=f"remove_{idx}"
-            ):
+            if remove:
 
                 st.session_state.selected_images.remove(url)
 
                 st.rerun()
+
+            cell.image(
+                img,
+                use_container_width=True
+            )
 
         except Exception:
             pass
