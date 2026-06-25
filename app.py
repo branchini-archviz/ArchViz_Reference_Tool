@@ -37,54 +37,129 @@ def search_images(query):
     results = []
 
 
-    sites = [
-        "archdaily.com",
-        "dezeen.com",
-        "divisare.com",
-        "designboom.com",
-        "world-architects.com"
-    ]
-
-
     try:
 
         with DDGS() as ddgs:
 
 
-            for site in sites:
+            # Buscar páginas de proyectos reales
+            search_results = ddgs.text(
+                query + " architecture project ArchDaily Dezeen Divisare",
+                max_results=5
+            )
 
 
-                search_query = (
-                    query
-                    +
-                    " site:"
-                    +
-                    site
+        urls = []
+
+
+        for item in search_results:
+
+            url = item.get(
+                "href",
+                ""
+            )
+
+            if url:
+
+                urls.append(url)
+
+
+
+        # Extraer imágenes de esas páginas
+
+        for page_url in urls:
+
+
+            try:
+
+                response = requests.get(
+                    page_url,
+                    timeout=8,
+                    headers={
+                        "User-Agent":
+                        "Mozilla/5.0"
+                    }
                 )
 
 
-                images = ddgs.images(
-                    search_query,
-                    max_results=8
+                soup = BeautifulSoup(
+                    response.text,
+                    "html.parser"
                 )
 
 
-                results.extend(
-                    images
+                images = soup.find_all(
+                    "img"
                 )
 
 
-                if len(results) >= 40:
-                    break
+                for img in images:
 
 
-        return results[:40]
+                    src = (
+                        img.get("src")
+                        or
+                        img.get("data-src")
+                    )
+
+
+                    if src:
+
+
+                        image_url = urljoin(
+                            page_url,
+                            src
+                        )
+
+
+                        # filtros básicos
+
+                        if any(
+                            x in image_url.lower()
+                            for x in [
+                                ".jpg",
+                                ".jpeg",
+                                ".png",
+                                ".webp"
+                            ]
+                        ):
+
+
+                            results.append(
+                                {
+                                    "image": image_url,
+                                    "title": query,
+                                    "url": page_url
+                                }
+                            )
+
+
+                    if len(results) >= 30:
+
+                        break
+
+
+
+            except Exception:
+
+                pass
+
+
+
+            if len(results) >= 30:
+
+                break
+
+
+
+        return results[:30]
+
 
 
     except Exception:
 
-        return []
 
+        return []
 
 
 # =========================
