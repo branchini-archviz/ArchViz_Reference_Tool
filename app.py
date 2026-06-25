@@ -16,7 +16,7 @@ if "results" not in st.session_state:
     st.session_state.results = {}
 
 if "selected_images" not in st.session_state:
-    st.session_state.selected_images = []
+    st.session_state.selected_images = {}
 
 if "image_cache" not in st.session_state:
     st.session_state.image_cache = {}
@@ -116,12 +116,12 @@ with tab_refs:
                 if selected:
 
                     if url not in st.session_state.selected_images:
-                        st.session_state.selected_images.append(url)
+                        st.session_state.selected_images[url] = project
 
                 else:
 
                     if url in st.session_state.selected_images:
-                        st.session_state.selected_images.remove(url)
+                        del st.session_state.selected_images[url]
 
             except Exception:
                 pass
@@ -141,7 +141,7 @@ with tab_moodboard:
 
     mood_cols = st.columns(4)
 
-    for idx, url in enumerate(st.session_state.selected_images):
+    for idx, url in enumerate(st.session_state.selected_images.keys()):
 
         try:
 
@@ -188,13 +188,33 @@ if st.button(
 
         processed_images = []
 
-        for url in st.session_state.selected_images:
+        font_size = 18
+        
+        for url, project_name in st.session_state.selected_images.items():
 
             try:
 
                 img = st.session_state.image_cache[url]
 
-                img_copy = img.copy()
+                img_copy = img.copy().convert("RGB")
+
+                draw = ImageDraw.Draw(img_copy)
+
+                text = project_name
+
+                font = None
+
+                text_position = (
+                    15,
+                    img_copy.height - 35
+                )
+
+                draw.text(
+                    text_position,
+                    text,
+                    fill="white",
+                    font=font
+                )
 
                 ratio = img_copy.height / img_copy.width
 
