@@ -109,7 +109,7 @@ with tab_refs:
                 col.image(img)
 
                 selected = col.checkbox(
-                    "Seleccionar",
+                    project,
                     key=f"{project}_{i}"
                 )
 
