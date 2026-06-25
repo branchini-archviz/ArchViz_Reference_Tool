@@ -109,6 +109,30 @@ def search_images(query):
 
                 if src and src.startswith("http"):
 
+                    
+                    # evitar basura por nombre de archivo
+
+                    bad_words = [
+                        "logo",
+                        "icon",
+                        "avatar",
+                        "profile",
+                        "sprite",
+                        "thumbnail",
+                        "thumb",
+                        "placeholder"
+                    ]
+
+
+                    if any(
+                        word in src.lower()
+                        for word in bad_words
+                    ):
+                        continue
+
+
+
+
 
                     results.append(
                         {
