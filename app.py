@@ -68,7 +68,6 @@ def search_images(query):
                     "divisare",
                     "dezeen",
                     "designboom",
-                    "architizer"
                 ]
             ):
                 continue
