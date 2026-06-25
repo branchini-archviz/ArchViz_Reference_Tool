@@ -16,6 +16,9 @@ if "results" not in st.session_state:
 if "selected_images" not in st.session_state:
     st.session_state.selected_images = []
 
+if "image_cache" not in st.session_state:
+    st.session_state.image_cache = {}
+
 projects = st.text_area(
     "Proyectos",
     height=200,
@@ -77,14 +80,19 @@ for project, images in st.session_state.results.items():
 
             url = result["image"]
 
-            response = requests.get(
-                url,
-                timeout=5
-            )
+           if url not in st.session_state.image_cache:
 
-            img = Image.open(
-                BytesIO(response.content)
-            )
+               response = requests.get(
+                   url,
+                   timeout=5
+               )
+
+               st.session_state.image_cache[url] = Image.open(
+                   BytesIO(response.content)
+               )
+
+
+           img = st.session_state.image_cache[url]
 
             col.image(
                 img,
