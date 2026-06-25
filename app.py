@@ -18,6 +18,9 @@ if "results" not in st.session_state:
 if "selected_images" not in st.session_state:
     st.session_state.selected_images = {}
 
+elif isinstance(st.session_state.selected_images, list):
+    st.session_state.selected_images = {}
+
 if "image_cache" not in st.session_state:
     st.session_state.image_cache = {}
 
