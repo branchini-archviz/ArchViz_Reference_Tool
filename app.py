@@ -242,58 +242,59 @@ if st.button(
                 pass
 
 
-board_width = cols * thumb_width + (cols - 1) * gap
+        board_width = cols * thumb_width + (cols - 1) * gap
 
-placements = []
+        placements = []
 
-for img in processed_images:
+        for img in processed_images:
 
-    column = column_heights.index(
-        min(column_heights)
-    )
+            column = column_heights.index(
+                min(column_heights)
+            )
 
-    x = column * (thumb_width + gap)
+            x = column * (thumb_width + gap)
 
-    y = column_heights[column]
+            y = column_heights[column]
 
-    placements.append(
-        (img, x, y)
-    )
+            placements.append(
+                (img, x, y)
+            )
 
-    column_heights[column] += img.height + gap
-
-
-board_height = max(column_heights) - gap
-
-moodboard = Image.new(
-    "RGB",
-    (board_width, board_height),
-    "white"
-)
-
-for img, x, y in placements:
-
-    moodboard.paste(
-        img,
-        (x, y)
-    )
+            column_heights[column] += img.height + gap
 
 
-output = BytesIO()
+        board_height = max(column_heights) - gap
 
-moodboard.save(
-    output,
-    format="JPEG",
-    quality=95
-)
+        moodboard = Image.new(
+            "RGB",
+            (board_width, board_height),
+            "white"
+        )
 
-st.download_button(
-    "⬇️ Descargar Moodboard JPG",
-    data=output.getvalue(),
-    file_name="moodboard.jpg",
-    mime="image/jpeg",
-    use_container_width=True
-)
+        for img, x, y in placements:
+
+            moodboard.paste(
+                img,
+                (x, y)
+            )
+
+
+        output = BytesIO()
+
+        moodboard.save(
+            output,
+            format="JPEG",
+            quality=95
+        )
+
+
+        st.download_button(
+            "⬇️ Descargar Moodboard JPG",
+            data=output.getvalue(),
+            file_name="moodboard.jpg",
+            mime="image/jpeg",
+            use_container_width=True
+        )
 st.write(
     f"Imágenes seleccionadas: {len(st.session_state.selected_images)}"
 )
