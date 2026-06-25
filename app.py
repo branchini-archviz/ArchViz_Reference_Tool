@@ -74,15 +74,6 @@ def analyze_image(image):
         skip_special_tokens=True
     )
 
-    description = (
-        "architectural project, "
-        "house design, "
-        "real building photography, "
-        "architecture magazine, "
-        + description
-    )
-
-
     return description
 
     architecture_prompt = (
