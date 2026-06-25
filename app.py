@@ -44,7 +44,7 @@ def search_images(query):
 
             images = ddgs.images(
                 '"' + query + '"',
-                max_results=30
+                max_results=30,
                 type_image="photo"
             )
 
