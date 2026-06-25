@@ -79,11 +79,11 @@ with left_col:
 
         st.subheader(project)
 
-        cols = st.columns(4)
+        cols = st.columns(3)
 
         for i, result in enumerate(images):
 
-            col = cols[i % 4]
+            col = cols[i % 3]
 
             try:
 
@@ -135,24 +135,28 @@ with right_col:
         f"{len(st.session_state.selected_images)} imágenes"
     )
 
+    mood_cols = st.columns(4)
+
     for idx, url in enumerate(st.session_state.selected_images):
 
         try:
 
             img = st.session_state.image_cache[url]
 
-            st.image(
+            cell = mood_cols[idx % 4]
+
+            cell.image(
                 img,
-                use_container_width=True
+                width=100
             )
 
-            c1, c2, c3 = st.columns(3)
+            r1c1, r1c2 = cell.columns(2)
 
-            with c1:
+            with r1c1:
 
                 if st.button(
-                    "⬆️",
-                    key=f"up_{idx}"
+                    "⬅️",
+                    key=f"left_{idx}"
                 ):
 
                     if idx > 0:
@@ -164,11 +168,11 @@ with right_col:
 
                         st.rerun()
 
-            with c2:
+            with r1c2:
 
                 if st.button(
-                    "⬇️",
-                    key=f"down_{idx}"
+                    "➡️",
+                    key=f"right_{idx}"
                 ):
 
                     if idx < len(st.session_state.selected_images) - 1:
@@ -180,16 +184,48 @@ with right_col:
 
                         st.rerun()
 
-            with c3:
+            r2c1, r2c2 = cell.columns(2)
+
+            with r2c1:
 
                 if st.button(
-                    "❌",
-                    key=f"remove_{idx}"
+                    "⬆️",
+                    key=f"up_{idx}"
                 ):
 
-                    st.session_state.selected_images.remove(url)
+                    if idx >= 4:
 
-                    st.rerun()
+                        st.session_state.selected_images[idx], st.session_state.selected_images[idx - 4] = (
+                            st.session_state.selected_images[idx - 4],
+                            st.session_state.selected_images[idx]
+                        )
+
+                        st.rerun()
+
+            with r2c2:
+
+                if st.button(
+                    "⬇️",
+                    key=f"down_{idx}"
+                ):
+
+                    if idx + 4 < len(st.session_state.selected_images):
+
+                        st.session_state.selected_images[idx], st.session_state.selected_images[idx + 4] = (
+                            st.session_state.selected_images[idx + 4],
+                            st.session_state.selected_images[idx]
+                        )
+
+                        st.rerun()
+
+            if cell.button(
+                "❌",
+                key=f"remove_{idx}"
+            ):
+
+                st.session_state.selected_images.remove(url)
+
+                st.rerun()
 
         except Exception:
             pass
