@@ -1,8 +1,7 @@
 streamlit
 ddgs
 requests
-beautifulsoup4
 pillow
-reportlab
+beautifulsoup4
 transformers
 torch
