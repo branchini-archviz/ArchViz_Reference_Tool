@@ -32,7 +32,7 @@ def search_images(query):
         with DDGS() as ddgs:
             images = ddgs.images(
                 query,
-                max_results=5
+                max_results=10
             )
             return images
 
