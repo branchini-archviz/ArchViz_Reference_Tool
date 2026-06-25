@@ -6,6 +6,7 @@ from io import BytesIO
 from PIL import Image, ImageOps, ImageDraw
 import math
 from PIL import ImageFont
+from transformers import BlipProcessor, BlipForConditionalGeneration
 
 st.set_page_config(
     page_title="ArchViz Reference Finder",
