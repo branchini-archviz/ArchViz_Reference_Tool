@@ -13,6 +13,8 @@ st.set_page_config(
 if "results" not in st.session_state:
     st.session_state.results = {}
 
+if "selected_images" not in st.session_state:
+    st.session_state.selected_images = []
 
 projects = st.text_area(
     "Proyectos",
@@ -90,9 +92,23 @@ for project, images in st.session_state.results.items():
             )
 
             col.checkbox(
-                "Guardar",
+                "Seleccionar",
                 key=f"{project}_{i}"
             )
 
+            if selected:
+
+                if url not in st.session_state.selected_images:
+                    st.session_state.selected_images.append(url)
+
+            else:
+
+                if url in st.session_state.selected_images:
+                    st.session_state.selected_images.remove(url)
+
         except Exception as e:
             pass
+
+st.write(
+    f"Imágenes seleccionadas: {len(st.session_state.selected_images)}"
+)
