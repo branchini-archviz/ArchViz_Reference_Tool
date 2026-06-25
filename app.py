@@ -35,33 +35,13 @@ if "image_cache" not in st.session_state:
 
 def search_images(query):
 
-    results = []
-
-    try:
-
-        url = (
-            "https://www.archdaily.com/search/projects?"
-            "q="
-            +
-            requests.utils.quote(query)
-        )
-
-
-        results.append(
-            {
-                "image": "",
-                "title": "Página búsqueda ArchDaily",
-                "url": url
-            }
-        )
-
-
-        return results
-
-
-    except Exception:
-
-        return []
+    return [
+        {
+            "image": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c",
+            "title": query,
+            "url": "https://www.archdaily.com"
+        }
+    ]
         
 # =========================
 # INTERFAZ
