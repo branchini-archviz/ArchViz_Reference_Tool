@@ -314,6 +314,11 @@ with tab_refs:
                         BytesIO(response.content)
                     )
 
+                    # eliminar imágenes pequeñas
+ 
+                    if img.width < 500 or img.height < 300:
+                        continue
+
 
                     st.session_state.image_cache[url] = img
 
