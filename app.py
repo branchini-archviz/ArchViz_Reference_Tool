@@ -44,7 +44,7 @@ def search_images(query):
 
             pages = ddgs.text(
                 query.replace("-", " ")
-                + " ArchDaily OR Divisare OR Dezeen",
+                + " architecture project ArchDaily",
                 max_results=10
             )
 
