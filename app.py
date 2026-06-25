@@ -3,6 +3,8 @@ from ddgs import DDGS
 import requests
 from PIL import Image
 from io import BytesIO
+from PIL import Image, ImageOps, ImageDraw
+import math
 
 st.set_page_config(
     page_title="ArchViz Reference Finder",
@@ -173,10 +175,96 @@ with tab_moodboard:
         use_container_width=True
     )
 
-    st.button(
-        "🖼️ Exportar JPG",
-        use_container_width=True
-    )
+    if st.button(
+    "🖼️ Exportar JPG",
+    use_container_width=True
+):
+
+    if len(st.session_state.selected_images) > 0:
+
+        cols = 4
+
+        thumb_size = 400
+
+        padding = 20
+
+        rows = math.ceil(
+            len(st.session_state.selected_images) / cols
+        )
+
+        board_width = (
+            cols * thumb_size
+            + (cols + 1) * padding
+        )
+
+        board_height = (
+            rows * thumb_size
+            + (rows + 1) * padding
+        )
+
+        moodboard = Image.new(
+            "RGB",
+            (board_width, board_height),
+            "white"
+        )
+
+        for idx, url in enumerate(
+            st.session_state.selected_images
+        ):
+
+            try:
+
+                img = st.session_state.image_cache[url]
+
+                img_copy = img.copy()
+
+                img_copy.thumbnail(
+                    (thumb_size, thumb_size)
+                )
+
+                x = (
+                    idx % cols
+                ) * (
+                    thumb_size + padding
+                ) + padding
+
+                y = (
+                    idx // cols
+                ) * (
+                    thumb_size + padding
+                ) + padding
+
+                paste_x = x + (
+                    thumb_size - img_copy.width
+                ) // 2
+
+                paste_y = y + (
+                    thumb_size - img_copy.height
+                ) // 2
+
+                moodboard.paste(
+                    img_copy,
+                    (paste_x, paste_y)
+                )
+
+            except Exception:
+                pass
+
+        output = BytesIO()
+
+        moodboard.save(
+            output,
+            format="JPEG",
+            quality=95
+        )
+
+        st.download_button(
+            "⬇️ Descargar Moodboard JPG",
+            data=output.getvalue(),
+            file_name="moodboard.jpg",
+            mime="image/jpeg",
+            use_container_width=True
+        )
 st.write(
     f"Imágenes seleccionadas: {len(st.session_state.selected_images)}"
 )
