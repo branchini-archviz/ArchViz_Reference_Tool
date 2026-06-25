@@ -80,29 +80,32 @@ for project, images in st.session_state.results.items():
 
             url = result["image"]
 
-           if url not in st.session_state.image_cache:
+            if url not in st.session_state.image_cache:
 
-               response = requests.get(
-                   url,
-                   timeout=5
-               )
+                response = requests.get(
+                    url,
+                    timeout=5
+                )
 
-               st.session_state.image_cache[url] = Image.open(
-                   BytesIO(response.content)
-               )
+                st.session_state.image_cache[url] = Image.open(
+                    BytesIO(response.content)
+                )
 
 
-           img = st.session_state.image_cache[url]
+            img = st.session_state.image_cache[url]
+
 
             col.image(
                 img,
                 use_container_width=True
             )
 
+
             selected = col.checkbox(
-                "Guardar",
+                "Seleccionar",
                 key=f"{project}_{i}"
             )
+
 
             if selected:
 
@@ -113,6 +116,7 @@ for project, images in st.session_state.results.items():
 
                 if url in st.session_state.selected_images:
                     st.session_state.selected_images.remove(url)
+
 
         except Exception as e:
             pass
