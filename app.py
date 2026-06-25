@@ -4,17 +4,14 @@ import requests
 from PIL import Image
 from io import BytesIO
 
-
 st.set_page_config(
     page_title="ArchViz Reference Finder",
     layout="wide"
 )
 
-st.title("ArchViz Reference Finder")
 
-st.write(
-    "Pegá proyectos con nombre y arquitecto"
-)
+if "results" not in st.session_state:
+    st.session_state.results = {}
 
 
 projects = st.text_area(
@@ -48,6 +45,8 @@ if st.button("Buscar referencias"):
 
     lista = projects.split("\n")
 
+    st.session_state.results = {}
+
     for project in lista:
 
         if project.strip():
@@ -57,6 +56,8 @@ if st.button("Buscar referencias"):
             st.subheader(project)
 
             images = search_images(project)
+
+            st.session_state.results[project] = images
 
             cols = st.columns(5)
 
