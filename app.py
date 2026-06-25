@@ -170,10 +170,6 @@ with tab_moodboard:
 
     st.divider()
 
-    st.button(
-        "📄 Exportar PDF",
-        use_container_width=True
-    )
  
 if st.button(
     "🖼️ Exportar JPG",
