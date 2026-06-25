@@ -204,7 +204,7 @@ if st.button(
 
                 text = project_name
 
-                font_size = 32
+                font_size = 100
 
                 try:
                     font = ImageFont.truetype(
