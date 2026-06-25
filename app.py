@@ -132,8 +132,8 @@ def search_images(query):
 
 
                 images = ddgs.images(
-                    query + " -cartoon -illustration -meme -quote",
-                    max_results=30
+                    search_query,
+                    max_results=10
                 )
 
 
@@ -154,10 +154,6 @@ def search_images(query):
 
         return []
 
-
-    except Exception:
-
-        return []
 
 
 
@@ -219,8 +215,13 @@ if st.button(
             "Analizando imagen..."
         ):
 
-            query = analyze_image(
-                image
+            query = (
+                analyze_image(image)
+                +
+                ", architecture project, "
+                "building exterior, "
+                "real construction photography, "
+                "architectural reference"
             )
 
 
