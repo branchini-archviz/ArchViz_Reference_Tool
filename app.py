@@ -43,16 +43,97 @@ def search_images(query):
         with DDGS() as ddgs:
 
             pages = ddgs.text(
-                query,
-                max_results=5
+                query + " architecture project",
+                max_results=10
             )
 
 
-        st.write("RESULTADOS TEXTO:")
-        st.write(pages)
+        for page in pages:
 
 
-        return []
+            url = page.get("href", "")
+
+
+            if not url:
+                continue
+
+
+            # solo sitios de arquitectura
+
+            if not any(
+                site in url.lower()
+                for site in [
+                    "archdaily",
+                    "divisare",
+                    "dezeen",
+                    "designboom",
+                    "architizer"
+                ]
+            ):
+                continue
+
+
+
+            response = requests.get(
+                url,
+                headers={
+                    "User-Agent":
+                    "Mozilla/5.0"
+                },
+                timeout=10
+            )
+
+
+            soup = BeautifulSoup(
+                response.text,
+                "html.parser"
+            )
+
+
+
+            images = soup.find_all(
+                "img"
+            )
+
+
+
+            for img in images:
+
+
+                src = (
+                    img.get("src")
+                    or
+                    img.get("data-src")
+                )
+
+
+                if src and src.startswith("http"):
+
+
+                    results.append(
+                        {
+                            "image": src,
+                            "title": page.get(
+                                "title",
+                                query
+                            ),
+                            "url": url
+                        }
+                    )
+
+
+                if len(results) >= 20:
+                    break
+
+
+
+            if len(results) >= 20:
+                break
+
+
+
+        return results
+
 
 
     except Exception as e:
