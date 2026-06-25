@@ -66,7 +66,7 @@ def analyze_image(image):
 
     output = model.generate(
         **inputs,
-        max_new_tokens=80
+        max_new_tokens=30
     )
 
     description = processor.decode(
@@ -74,6 +74,16 @@ def analyze_image(image):
         skip_special_tokens=True
     )
 
+    description = (
+        "architectural project, "
+        "house design, "
+        "real building photography, "
+        "architecture magazine, "
+        + description
+    )
+
+
+    return description
 
     architecture_prompt = (
         "architectural photography, "
@@ -132,7 +142,7 @@ def search_images(query):
 
 
                 images = ddgs.images(
-                    search_query,
+                    query + " -cartoon -illustration -meme -quote",
                     max_results=30
                 )
 
@@ -254,7 +264,7 @@ if st.button(
 
 
         images = search_images(
-            query
+            "architecture building project photography " + query
         )
 
 
