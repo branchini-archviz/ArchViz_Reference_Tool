@@ -1,17 +1,32 @@
 import streamlit as st
 from ddgs import DDGS
 import requests
-from PIL import Image
+
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-from PIL import Image, ImageOps, ImageDraw
-import math
-from PIL import ImageFont
+
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
 st.set_page_config(
     page_title="ArchViz Reference Finder",
     layout="wide"
 )
+
+@st.cache_resource
+def load_ai_model():
+
+    processor = BlipProcessor.from_pretrained(
+        "Salesforce/blip-image-captioning-base"
+    )
+
+    model = BlipForConditionalGeneration.from_pretrained(
+        "Salesforce/blip-image-captioning-base"
+    )
+
+    return processor, model
+
+
+processor, model = load_ai_model()
 
 
 if "results" not in st.session_state:
