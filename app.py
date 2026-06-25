@@ -62,65 +62,149 @@ if st.button("Buscar referencias"):
 
 
 
-# Mostrar resultados guardados
+# Layout principal
 
-for project, images in st.session_state.results.items():
+left_col, right_col = st.columns([4, 1])
 
-    st.divider()
 
-    st.subheader(project)
+# =========================
+# GALERÍA DE REFERENCIAS
+# =========================
 
-    cols = st.columns(5)
+with left_col:
 
-    for i, result in enumerate(images):
+    for project, images in st.session_state.results.items():
 
-        col = cols[i % 5]
+        st.divider()
+
+        st.subheader(project)
+
+        cols = st.columns(4)
+
+        for i, result in enumerate(images):
+
+            col = cols[i % 4]
+
+            try:
+
+                url = result["image"]
+
+                if url not in st.session_state.image_cache:
+
+                    response = requests.get(
+                        url,
+                        timeout=5
+                    )
+
+                    st.session_state.image_cache[url] = Image.open(
+                        BytesIO(response.content)
+                    )
+
+                img = st.session_state.image_cache[url]
+
+                col.image(img)
+
+                selected = col.checkbox(
+                    "Seleccionar",
+                    key=f"{project}_{i}"
+                )
+
+                if selected:
+
+                    if url not in st.session_state.selected_images:
+                        st.session_state.selected_images.append(url)
+
+                else:
+
+                    if url in st.session_state.selected_images:
+                        st.session_state.selected_images.remove(url)
+
+            except Exception:
+                pass
+
+
+# =========================
+# PANEL MOODBOARD
+# =========================
+
+with right_col:
+
+    st.subheader("Moodboard")
+
+    st.write(
+        f"{len(st.session_state.selected_images)} imágenes"
+    )
+
+    for idx, url in enumerate(st.session_state.selected_images):
 
         try:
 
-            url = result["image"]
-
-            if url not in st.session_state.image_cache:
-
-                response = requests.get(
-                    url,
-                    timeout=5
-                )
-
-                st.session_state.image_cache[url] = Image.open(
-                    BytesIO(response.content)
-                )
-
-
             img = st.session_state.image_cache[url]
 
-
-            col.image(
+            st.image(
                 img,
                 use_container_width=True
             )
 
+            c1, c2, c3 = st.columns(3)
 
-            selected = col.checkbox(
-                "Seleccionar",
-                key=f"{project}_{i}"
-            )
+            with c1:
 
+                if st.button(
+                    "⬆️",
+                    key=f"up_{idx}"
+                ):
 
-            if selected:
+                    if idx > 0:
 
-                if url not in st.session_state.selected_images:
-                    st.session_state.selected_images.append(url)
+                        st.session_state.selected_images[idx], st.session_state.selected_images[idx - 1] = (
+                            st.session_state.selected_images[idx - 1],
+                            st.session_state.selected_images[idx]
+                        )
 
-            else:
+                        st.rerun()
 
-                if url in st.session_state.selected_images:
+            with c2:
+
+                if st.button(
+                    "⬇️",
+                    key=f"down_{idx}"
+                ):
+
+                    if idx < len(st.session_state.selected_images) - 1:
+
+                        st.session_state.selected_images[idx], st.session_state.selected_images[idx + 1] = (
+                            st.session_state.selected_images[idx + 1],
+                            st.session_state.selected_images[idx]
+                        )
+
+                        st.rerun()
+
+            with c3:
+
+                if st.button(
+                    "❌",
+                    key=f"remove_{idx}"
+                ):
+
                     st.session_state.selected_images.remove(url)
 
+                    st.rerun()
 
-        except Exception as e:
+        except Exception:
             pass
 
+    st.divider()
+
+    st.button(
+        "📄 Exportar PDF",
+        use_container_width=True
+    )
+
+    st.button(
+        "🖼️ Exportar JPG",
+        use_container_width=True
+    )
 st.write(
     f"Imágenes seleccionadas: {len(st.session_state.selected_images)}"
 )
