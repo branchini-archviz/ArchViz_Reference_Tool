@@ -183,90 +183,87 @@ if st.button(
     if len(st.session_state.selected_images) > 0:
 
         cols = 4
-
         gap = 8
-
         thumb_width = 350
 
         column_heights = [0] * cols
 
         processed_images = []
 
-for url, project_name in st.session_state.selected_images.items():
 
-    try:
+        for url, project_name in st.session_state.selected_images.items():
 
-        img = st.session_state.image_cache[url]
+            try:
 
-        img_copy = img.copy().convert("RGB")
+                img = st.session_state.image_cache[url]
 
-
-        ratio = img_copy.height / img_copy.width
-
-        new_height = int(
-            thumb_width * ratio
-        )
-
-        img_copy = img_copy.resize(
-            (thumb_width, new_height)
-        )
+                img_copy = img.copy().convert("RGB")
 
 
-        draw = ImageDraw.Draw(img_copy)
+                ratio = img_copy.height / img_copy.width
 
-        text = project_name
+                new_height = int(
+                    thumb_width * ratio
+                )
 
-        font_size = 18
-
-        try:
-            font = ImageFont.truetype(
-                "DejaVuSans.ttf",
-                font_size
-            )
-
-        except:
-
-            font = ImageFont.load_default()
+                img_copy = img_copy.resize(
+                    (thumb_width, new_height)
+                )
 
 
-        text_position = (
-            15,
-            img_copy.height - 30
-        )
+                draw = ImageDraw.Draw(img_copy)
 
 
-        # sombra negra
-        draw.text(
-            (
-                text_position[0] + 1,
-                text_position[1] + 1
-            ),
-            text,
-            fill="black",
-            font=font
-        )
+                try:
+
+                    font = ImageFont.truetype(
+                        "DejaVuSans.ttf",
+                        18
+                    )
+
+                except:
+
+                    font = ImageFont.load_default()
 
 
-        # texto blanco
-        draw.text(
-            text_position,
-            text,
-            fill="white",
-            font=font
-        )
+                text_position = (
+                    15,
+                    img_copy.height - 30
+                )
 
 
-        processed_images.append(img_copy)
+                draw.text(
+                    (
+                        text_position[0] + 1,
+                        text_position[1] + 1
+                    ),
+                    project_name,
+                    fill="black",
+                    font=font
+                )
 
 
-    except Exception:
+                draw.text(
+                    text_position,
+                    project_name,
+                    fill="white",
+                    font=font
+                )
 
-        pass
+
+                processed_images.append(img_copy)
+
+
+            except Exception:
+
+                pass
+
 
 
         board_width = cols * thumb_width + (cols - 1) * gap
 
         placements = []
+
 
         for img in processed_images:
 
@@ -278,20 +275,25 @@ for url, project_name in st.session_state.selected_images.items():
 
             y = column_heights[column]
 
+
             placements.append(
                 (img, x, y)
             )
 
+
             column_heights[column] += img.height + gap
 
 
+
         board_height = max(column_heights) - gap
+
 
         moodboard = Image.new(
             "RGB",
             (board_width, board_height),
             "white"
         )
+
 
         for img, x, y in placements:
 
@@ -301,7 +303,9 @@ for url, project_name in st.session_state.selected_images.items():
             )
 
 
+
         output = BytesIO()
+
 
         moodboard.save(
             output,
