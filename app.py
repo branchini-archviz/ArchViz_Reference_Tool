@@ -1,7 +1,8 @@
 import streamlit as st
-from ddgs import DDGS
 import requests
+import json
 
+from bs4 import BeautifulSoup
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 
@@ -36,24 +37,93 @@ def search_images(query):
 
     results = []
 
+
     try:
 
-        with DDGS() as ddgs:
+        search_url = (
+            "https://www.bing.com/images/search?q="
+            +
+            requests.utils.quote(query)
+        )
 
-            pages = ddgs.text(
-                "Casa Poli Pezo von Ellrichshausen ArchDaily",
-                max_results=5
+
+        headers = {
+            "User-Agent":
+            "Mozilla/5.0"
+        }
+
+
+        response = requests.get(
+            search_url,
+            headers=headers,
+            timeout=10
+        )
+
+
+        soup = BeautifulSoup(
+            response.text,
+            "html.parser"
+        )
+
+
+        images = soup.find_all(
+            "a",
+            class_="iusc"
+        )
+
+
+        for img in images:
+
+
+            data = img.get(
+                "m"
             )
 
 
-        return pages
+            if data:
+
+
+                import json
+
+
+                info = json.loads(
+                    data
+                )
+
+
+                image_url = info.get(
+                    "murl"
+                )
+
+
+                if image_url:
+
+
+                    results.append(
+                        {
+                            "image": image_url,
+                            "title": query,
+                            "url": info.get("purl","")
+                        }
+                    )
+
+
+            if len(results) >= 30:
+
+                break
+
+
+
+        return results
+
 
 
     except Exception as e:
 
-        st.error(e)
-        return []
 
+        st.error(e)
+
+        return []
 # =========================
 # INTERFAZ
 # =========================
