@@ -202,41 +202,58 @@ if st.button(
 
                 draw = ImageDraw.Draw(img_copy)
 
-                text = project_name
+ratio = img_copy.height / img_copy.width
 
-                font_size = 100
+new_height = int(
+    thumb_width * ratio
+)
 
-                try:
-                    font = ImageFont.truetype(
-                        "DejaVuSans.ttf",
-                        font_size
-                    )
-                except:
-                    font = ImageFont.load_default()
+img_copy = img_copy.resize(
+    (thumb_width, new_height)
+)
 
-                text_position = (
-                    20,
-                    img_copy.height - 55
-                )
 
-                draw.text(
-                    text_position,
-                    text,
-                    fill="white",
-                    font=font
-                )
+draw = ImageDraw.Draw(img_copy)
 
-                ratio = img_copy.height / img_copy.width
+text = project_name
 
-                new_height = int(
-                    thumb_width * ratio
-                )
+font_size = 18
 
-                img_copy = img_copy.resize(
-                    (thumb_width, new_height)
-                )
+try:
+    font = ImageFont.truetype(
+        "DejaVuSans.ttf",
+        font_size
+    )
+except:
+    font = ImageFont.load_default()
 
-                processed_images.append(img_copy)
+
+text_position = (
+    15,
+    img_copy.height - 30
+)
+
+
+# sombra para que se lea sobre cualquier imagen
+draw.text(
+    (
+        text_position[0] + 1,
+        text_position[1] + 1
+    ),
+    text,
+    fill="black",
+    font=font
+)
+
+draw.text(
+    text_position,
+    text,
+    fill="white",
+    font=font
+)
+
+
+processed_images.append(img_copy)
 
             except Exception:
                 pass
