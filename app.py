@@ -64,14 +64,16 @@ if st.button("Buscar referencias"):
 
 # Layout principal
 
-left_col, right_col = st.columns([4, 1])
+tab_refs, tab_moodboard = st.tabs(
+    ["Referencias", "Moodboard"]
+)
 
 
 # =========================
 # GALERÍA DE REFERENCIAS
 # =========================
 
-with left_col:
+with tab_refs:
 
     for project, images in st.session_state.results.items():
 
