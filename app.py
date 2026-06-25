@@ -78,12 +78,12 @@ if st.button("Buscar referencias"):
                         BytesIO(response.content)
                     )
 
-                    cols[i].image(
+                    col.image(
                         img,
                         use_container_width=True
                     )
 
-                    cols[i].checkbox(
+                    col.checkbox(
                         "Guardar",
                         key=f"{project}_{i}"
                     )
