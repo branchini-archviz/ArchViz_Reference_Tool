@@ -2,6 +2,4 @@ streamlit
 ddgs
 requests
 pillow
-transformers
-torch
-torchvision
+beautifulsoup4
