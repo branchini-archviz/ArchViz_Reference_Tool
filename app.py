@@ -218,7 +218,7 @@ if st.button(
 
                     font = ImageFont.truetype(
                         "DejaVuSans.ttf",
-                        18
+                        12
                     )
 
                 except:
@@ -228,7 +228,7 @@ if st.button(
 
                 text_position = (
                     15,
-                    img_copy.height - 30
+                    img_copy.height - 10
                 )
 
 
