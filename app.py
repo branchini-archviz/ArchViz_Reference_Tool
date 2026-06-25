@@ -36,42 +36,23 @@ def search_images(query):
 
     results = []
 
-
     try:
 
         with DDGS() as ddgs:
 
-
             pages = ddgs.text(
-                query + " ArchDaily",
+                "Casa Poli Pezo von Ellrichshausen ArchDaily",
                 max_results=5
             )
 
 
-        for page in pages:
-
-            url = page.get("href", "")
+        return pages
 
 
-            if url:
+    except Exception as e:
 
-                results.append(
-                    {
-                        "image": "",
-                        "title": page.get("title", ""),
-                        "url": url
-                    }
-                )
-
-
-        return results
-
-
-
-    except Exception:
-
+        st.error(e)
         return []
-
 
 # =========================
 # INTERFAZ
