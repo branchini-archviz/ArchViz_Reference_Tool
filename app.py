@@ -4,6 +4,9 @@ import requests
 
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+import json
 
 
 st.set_page_config(
@@ -41,10 +44,8 @@ def search_images(query):
 
         with DDGS() as ddgs:
 
-
-            # Buscar páginas de proyectos reales
             search_results = ddgs.text(
-                query + " architecture project ArchDaily Dezeen Divisare",
+                query + " site:archdaily.com OR site:dezeen.com OR site:divisare.com",
                 max_results=5
             )
 
@@ -54,27 +55,22 @@ def search_images(query):
 
         for item in search_results:
 
-            url = item.get(
-                "href",
-                ""
-            )
+            url = item.get("href")
 
             if url:
-
                 urls.append(url)
 
 
-
-        # Extraer imágenes de esas páginas
 
         for page_url in urls:
 
 
             try:
 
+
                 response = requests.get(
                     page_url,
-                    timeout=8,
+                    timeout=10,
                     headers={
                         "User-Agent":
                         "Mozilla/5.0"
@@ -88,55 +84,140 @@ def search_images(query):
                 )
 
 
-                images = soup.find_all(
+
+                image_urls = []
+
+
+
+                # 1 - OpenGraph
+
+                og_images = soup.find_all(
+                    "meta",
+                    property="og:image"
+                )
+
+
+                for img in og_images:
+
+                    content = img.get(
+                        "content"
+                    )
+
+                    if content:
+
+                        image_urls.append(
+                            content
+                        )
+
+
+
+                # 2 - JSON-LD
+
+                scripts = soup.find_all(
+                    "script",
+                    type="application/ld+json"
+                )
+
+
+                for script in scripts:
+
+                    try:
+
+                        data = json.loads(
+                            script.string
+                        )
+
+
+                        if isinstance(
+                            data,
+                            dict
+                        ):
+
+
+                            img = data.get(
+                                "image"
+                            )
+
+
+                            if isinstance(
+                                img,
+                                list
+                            ):
+
+                                image_urls.extend(
+                                    img
+                                )
+
+
+                            elif img:
+
+                                image_urls.append(
+                                    img
+                                )
+
+
+                    except:
+
+                        pass
+
+
+
+                # 3 - srcset
+
+                imgs = soup.find_all(
                     "img"
                 )
 
 
-                for img in images:
+                for img in imgs:
 
 
-                    src = (
-                        img.get("src")
-                        or
-                        img.get("data-src")
+                    srcset = img.get(
+                        "srcset"
                     )
 
 
-                    if src:
+                    if srcset:
 
 
-                        image_url = urljoin(
-                            page_url,
-                            src
+                        first = srcset.split(",")[0]
+
+                        image_urls.append(
+                            first.split()[0]
                         )
 
 
-                        # filtros básicos
 
-                        if any(
-                            x in image_url.lower()
-                            for x in [
-                                ".jpg",
-                                ".jpeg",
-                                ".png",
-                                ".webp"
-                            ]
-                        ):
+                # Guardar resultados
+
+                for img_url in image_urls:
 
 
-                            results.append(
-                                {
-                                    "image": image_url,
-                                    "title": query,
-                                    "url": page_url
-                                }
-                            )
+                    img_url = urljoin(
+                        page_url,
+                        img_url
+                    )
+
+
+                    if img_url not in [
+                        x["image"]
+                        for x in results
+                    ]:
+
+
+                        results.append(
+                            {
+                                "image": img_url,
+                                "title": query,
+                                "url": page_url
+                            }
+                        )
+
 
 
                     if len(results) >= 30:
 
-                        break
+                        return results[:30]
 
 
 
@@ -146,21 +227,13 @@ def search_images(query):
 
 
 
-            if len(results) >= 30:
-
-                break
-
-
-
         return results[:30]
 
 
 
     except Exception:
 
-
         return []
-
 
 # =========================
 # INTERFAZ
